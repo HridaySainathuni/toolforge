@@ -182,3 +182,40 @@ def build_tool_gen_user_prompt_with_failures(
     failure_block = "\n\nPREVIOUS FAILED ATTEMPTS (avoid repeating these mistakes):\n" + "\n\n".join(parts)
 
     return base_prompt + failure_block, function_name
+
+
+LIBRARIAN_SYSTEM_PROMPT = """You are a code librarian. You will receive a list of Python tools from a tool library.
+
+Your job:
+1. Identify tools that are REDUNDANT or HIGHLY OVERLAPPING in functionality.
+2. For each redundant pair/group, propose a single merged function that replaces both, is MORE GENERAL than either, and has a clear docstring.
+3. Identify tools that are too SPECIFIC to one task and suggest a more abstract version.
+
+Rules for merged/refactored tools:
+- ALL imports must be inside the function body
+- The function must have type annotations and a docstring
+- The new function must correctly handle all use cases of the tools it replaces
+- Keep the most informative name
+
+Output ONLY a JSON object with no markdown:
+{
+  "merges": [
+    {
+      "replace_names": ["name_a", "name_b"],
+      "new_name": "better_name",
+      "source_code": "def better_name(...): ...",
+      "description": "one sentence"
+    }
+  ],
+  "refactors": [
+    {
+      "replace_name": "too_specific_name",
+      "new_name": "general_name",
+      "source_code": "def general_name(...): ...",
+      "description": "one sentence"
+    }
+  ]
+}
+
+If there is nothing to merge or refactor, return: {"merges": [], "refactors": []}
+"""
