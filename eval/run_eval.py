@@ -48,55 +48,35 @@ def load_tasks(path: str) -> list[dict]:
 
 
 def answers_match(actual: str, expected: str) -> bool:
-    """Loose comparison: strip whitespace, try numeric equality, fall back to string."""
-    import re
+    """Compare actual vs expected answer.
+
+    Tries exact string match first, then numeric comparison.
+    Does NOT extract numbers from prose — too error-prone.
+    """
     a = actual.strip().lower()
     e = expected.strip().lower()
     if a == e:
         return True
-    # Try numeric comparison
+    # Numeric comparison: only if both values parse as floats
     try:
         return abs(float(a) - float(e)) < 1e-3
     except ValueError:
         pass
-    # Try extracting first number from actual answer
-    nums_a = re.findall(r"-?\d+\.?\d*", a)
-    nums_e = re.findall(r"-?\d+\.?\d*", e)
-    if nums_a and nums_e:
-        try:
-            return abs(float(nums_a[0]) - float(nums_e[0])) < 1e-3
-        except ValueError:
-            pass
     return False
 
 
 def run_eval(batch_path: str, condition: str) -> str:
     """Run evaluation and return path to CSV output file."""
-    # Apply ablation flags via environment variables
-    if condition in ("no_library", "baseline"):
-        os.environ["ABLATION_NO_LIBRARY"] = "true"
-        os.environ.pop("ABLATION_NO_ABSTRACTION", None)
-    elif condition == "no_abstraction":
-        os.environ["ABLATION_NO_ABSTRACTION"] = "true"
-        os.environ.pop("ABLATION_NO_LIBRARY", None)
-    else:  # full
-        os.environ.pop("ABLATION_NO_LIBRARY", None)
-        os.environ.pop("ABLATION_NO_ABSTRACTION", None)
-
-    # Reload config flags (they're read at class definition time — reimport)
-    import importlib
-    import config as cfg_module
-    importlib.reload(cfg_module)
-    # Patch Config class attributes directly
-    from config import Config as Cfg
-    Cfg.ABLATION_NO_LIBRARY = os.getenv("ABLATION_NO_LIBRARY", "false").lower() == "true"
-    Cfg.ABLATION_NO_ABSTRACTION = os.getenv("ABLATION_NO_ABSTRACTION", "false").lower() == "true"
+    import config as _cfg
+    _cfg.Config.ABLATION_NO_LIBRARY = condition in ("no_library", "baseline")
+    _cfg.Config.ABLATION_NO_ABSTRACTION = condition == "no_abstraction"
+    _cfg.Config.ABLATION_NO_LIBRARIAN = False
 
     tasks = load_tasks(batch_path)
     batch_name = os.path.splitext(os.path.basename(batch_path))[0]
 
     os.makedirs("eval/results", exist_ok=True)
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
     out_path = f"eval/results/{batch_name}_{condition}_{timestamp}.csv"
 
     # Fresh library per condition run (so ablations start from same baseline)
