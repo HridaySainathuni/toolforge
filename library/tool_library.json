@@ -1,0 +1,109 @@
+{
+  "version": "1.0",
+  "tools": {
+    "read_file": {
+      "name": "read_file",
+      "description": "Read text content from a local file",
+      "source_code": "def read_file(path: str) -> str:\n    \"\"\"Read and return the text content of a file.\"\"\"\n    try:\n        with open(path, 'r', encoding='utf-8') as f:\n            return f.read()\n    except Exception as e:\n        return f'Error reading file: {e}'\n",
+      "args": {
+        "path": "str \u2014 path to the file"
+      },
+      "returns": "str \u2014 file content or error message",
+      "tags": [
+        "file",
+        "read",
+        "text",
+        "local"
+      ],
+      "created_at": "2026-04-15T01:05:44.435393+00:00",
+      "created_for_task": "seed",
+      "use_count": 0,
+      "validated": true
+    },
+    "write_file": {
+      "name": "write_file",
+      "description": "Write text content to a local file",
+      "source_code": "def write_file(path: str, content: str) -> str:\n    \"\"\"Write content to a file, creating directories if needed.\"\"\"\n    import os\n    try:\n        os.makedirs(os.path.dirname(path) or '.', exist_ok=True)\n        with open(path, 'w', encoding='utf-8') as f:\n            f.write(content)\n        return f'Successfully wrote {len(content)} chars to {path}'\n    except Exception as e:\n        return f'Error writing file: {e}'\n",
+      "args": {
+        "path": "str \u2014 path to write to",
+        "content": "str \u2014 text to write"
+      },
+      "returns": "str \u2014 success or error message",
+      "tags": [
+        "file",
+        "write",
+        "text",
+        "local",
+        "save"
+      ],
+      "created_at": "2026-04-15T01:05:44.435393+00:00",
+      "created_for_task": "seed",
+      "use_count": 0,
+      "validated": true
+    },
+    "fetch_webpage": {
+      "name": "fetch_webpage",
+      "description": "Fetch the raw HTML content of a URL",
+      "source_code": "def fetch_webpage(url: str) -> str:\n    \"\"\"Fetch and return the HTML content of a webpage.\"\"\"\n    import requests\n    try:\n        resp = requests.get(url, timeout=10, headers={'User-Agent': 'ToolForge/1.0'})\n        resp.raise_for_status()\n        return resp.text[:50000]\n    except Exception as e:\n        return f'Error fetching URL: {e}'\n",
+      "args": {
+        "url": "str \u2014 the URL to fetch"
+      },
+      "returns": "str \u2014 HTML content (truncated to 50k chars) or error message",
+      "tags": [
+        "web",
+        "http",
+        "fetch",
+        "html",
+        "url",
+        "scrape"
+      ],
+      "created_at": "2026-04-15T01:05:44.435393+00:00",
+      "created_for_task": "seed",
+      "use_count": 0,
+      "validated": true
+    },
+    "run_python_expression": {
+      "name": "run_python_expression",
+      "description": "Evaluate a Python expression and return the result (math, logic, string ops)",
+      "source_code": "def run_python_expression(expression: str) -> str:\n    \"\"\"Safely evaluate a Python expression (math, string ops, etc).\"\"\"\n    import math\n    allowed = {'__builtins__': {}, 'math': math, 'abs': abs, 'round': round,\n               'min': min, 'max': max, 'sum': sum, 'len': len,\n               'int': int, 'float': float, 'str': str, 'list': list,\n               'sorted': sorted, 'range': range, 'enumerate': enumerate,\n               'zip': zip, 'map': map, 'filter': filter, 'True': True,\n               'False': False, 'None': None}\n    try:\n        result = eval(expression, allowed)\n        return str(result)\n    except Exception as e:\n        return f'Error evaluating expression: {e}'\n",
+      "args": {
+        "expression": "str \u2014 Python expression to evaluate"
+      },
+      "returns": "str \u2014 result of the expression or error message",
+      "tags": [
+        "math",
+        "calculate",
+        "eval",
+        "expression",
+        "logic",
+        "compute"
+      ],
+      "created_at": "2026-04-15T01:05:44.435393+00:00",
+      "created_for_task": "seed",
+      "use_count": 0,
+      "validated": true
+    },
+    "search_text": {
+      "name": "search_text",
+      "description": "Search text using a regex pattern and return all matches",
+      "source_code": "def search_text(text: str, pattern: str) -> str:\n    \"\"\"Search text with a regex pattern, return JSON list of matches.\"\"\"\n    import re\n    import json\n    try:\n        matches = re.findall(pattern, text)\n        return json.dumps(matches[:100])\n    except Exception as e:\n        return f'Error in regex search: {e}'\n",
+      "args": {
+        "text": "str \u2014 text to search in",
+        "pattern": "str \u2014 regex pattern"
+      },
+      "returns": "str \u2014 JSON array of matches (max 100)",
+      "tags": [
+        "regex",
+        "search",
+        "text",
+        "pattern",
+        "find",
+        "match"
+      ],
+      "created_at": "2026-04-15T01:05:44.435393+00:00",
+      "created_for_task": "seed",
+      "use_count": 0,
+      "validated": true
+    }
+  }
+}

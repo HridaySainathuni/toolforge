@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToolForge</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      display: flex;
+      height: 100vh;
+      font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+      background: #0a0a0f;
+      color: #d0d0d0;
+    }
+
+    /* Chat Panel */
+    #chat-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #1a1a2e;
+    }
+
+    #header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #1a1a2e;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #0d0d14;
+    }
+
+    #header h1 {
+      font-size: 1.3em;
+      font-weight: 700;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    #header .subtitle {
+      font-size: 0.75em;
+      color: #555;
+    }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .msg {
+      padding: 10px 14px;
+      border-radius: 8px;
+      max-width: 95%;
+      line-height: 1.5;
+      font-size: 0.88em;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .msg.user {
+      background: #1a1a3e;
+      border: 1px solid #2a2a5e;
+      align-self: flex-end;
+      color: #c0c0ff;
+    }
+
+    .msg.thought {
+      color: #666;
+      font-style: italic;
+      font-size: 0.82em;
+      padding: 6px 14px;
+    }
+
+    .msg.tool-call {
+      background: #0d1a2a;
+      border-left: 3px solid #3b82f6;
+      color: #7ab8ff;
+      font-size: 0.82em;
+    }
+
+    .msg.tool-result {
+      background: #0d1a1a;
+      border-left: 3px solid #10b981;
+      color: #8ad8b8;
+      font-size: 0.82em;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .msg.tool-result.error {
+      border-left-color: #ef4444;
+      color: #f0a0a0;
+      background: #1a0d0d;
+    }
+
+    .msg.acquiring {
+      background: #1a1a0d;
+      border-left: 3px solid #f59e0b;
+      color: #f0d080;
+      font-size: 0.82em;
+    }
+
+    .msg.acquired {
+      background: #0d1a0d;
+      border: 1px solid #22c55e;
+      color: #80f0a0;
+      animation: flash-green 1.5s ease-out;
+    }
+
+    .msg.answer {
+      background: #1a0d2a;
+      border: 1px solid #8b5cf6;
+      color: #d0b0ff;
+      font-size: 0.95em;
+      font-weight: 500;
+    }
+
+    .msg.error-msg {
+      background: #1a0d0d;
+      border: 1px solid #ef4444;
+      color: #f0a0a0;
+    }
+
+    @keyframes flash-green {
+      0% { background: #1a3a1a; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); }
+      100% { background: #0d1a0d; box-shadow: none; }
+    }
+
+    #input-row {
+      display: flex;
+      padding: 12px 20px;
+      gap: 10px;
+      border-top: 1px solid #1a1a2e;
+      background: #0d0d14;
+    }
+
+    #task-input {
+      flex: 1;
+      background: #12121f;
+      border: 1px solid #2a2a4e;
+      color: #d0d0d0;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 0.9em;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #task-input:focus { border-color: #6366f1; }
+
+    #task-input::placeholder { color: #444; }
+
+    #run-btn {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 0.9em;
+      transition: opacity 0.2s;
+    }
+
+    #run-btn:hover { opacity: 0.85; }
+    #run-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Tool Panel */
+    #tool-panel {
+      width: 380px;
+      overflow-y: auto;
+      padding: 16px;
+      background: #0d0d12;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #tool-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #1a1a2e;
+    }
+
+    #tool-panel-header h2 {
+      font-size: 1em;
+      color: #22c55e;
+    }
+
+    #tool-count {
+      font-size: 0.8em;
+      color: #555;
+      background: #1a1a2e;
+      padding: 3px 10px;
+      border-radius: 12px;
+    }
+
+    .tool-card {
+      background: #10101a;
+      border: 1px solid #1a1a2e;
+      border-radius: 8px;
+      padding: 12px;
+      transition: border-color 0.3s;
+    }
+
+    .tool-card:hover { border-color: #2a2a4e; }
+
+    .tool-card.seed { border-left: 3px solid #3b82f6; }
+    .tool-card.generated { border-left: 3px solid #22c55e; }
+
+    .tool-card.new-tool {
+      animation: flash-card 2s ease-out;
+    }
+
+    @keyframes flash-card {
+      0% { background: #1a2a1a; border-color: #22c55e; box-shadow: 0 0 15px rgba(34, 197, 94, 0.2); }
+      100% { background: #10101a; border-color: #1a1a2e; box-shadow: none; }
+    }
+
+    .tool-card h4 {
+      font-size: 0.88em;
+      color: #a0a0ff;
+      margin-bottom: 4px;
+      font-weight: 600;
+    }
+
+    .tool-card .desc {
+      font-size: 0.78em;
+      color: #777;
+      margin-bottom: 8px;
+    }
+
+    .tool-card .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 6px;
+    }
+
+    .tool-card .tags span {
+      background: #1a1a2e;
+      color: #888;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.7em;
+    }
+
+    .tool-card .meta {
+      font-size: 0.7em;
+      color: #444;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border: 2px solid #333;
+      border-top-color: #8b5cf6;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a3e; border-radius: 3px; }
+  </style>
+</head>
+<body>
+  <div id="chat-panel">
+    <div id="header">
+      <h1>ToolForge</h1>
+      <span class="subtitle">Autonomous tool-acquiring agent</span>
+    </div>
+    <div id="messages">
+      <div class="msg thought">Ready. Give me a task and I'll figure out what tools I need.</div>
+    </div>
+    <div id="input-row">
+      <input id="task-input" placeholder="Describe a task..." autofocus />
+      <button id="run-btn" onclick="submitTask()">Run</button>
+    </div>
+  </div>
+
+  <div id="tool-panel">
+    <div id="tool-panel-header">
+      <h2>Tool Library</h2>
+      <span id="tool-count">0 tools</span>
+    </div>
+    <div id="tool-list"></div>
+  </div>
+
+  <script>
+    let eventSource = null;
+    let running = false;
+
+    document.getElementById('task-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        submitTask();
+      }
+    });
+
+    function submitTask() {
+      if (running) return;
+
+      const input = document.getElementById('task-input');
+      const task = input.value.trim();
+      if (!task) return;
+
+      input.value = '';
+      setRunning(true);
+      addMsg('user', task);
+
+      if (eventSource) { eventSource.close(); eventSource = null; }
+
+      fetch('/api/task', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ task }),
+      })
+        .then(r => r.json())
+        .then(({ task_id }) => {
+          eventSource = new EventSource(`/api/task/${task_id}/stream`);
+          eventSource.onmessage = handleEvent;
+          eventSource.onerror = () => {
+            setRunning(false);
+            if (eventSource) { eventSource.close(); eventSource = null; }
+          };
+        })
+        .catch(err => {
+          addMsg('error-msg', `Failed to start task: ${err}`);
+          setRunning(false);
+        });
+    }
+
+    function handleEvent(e) {
+      const d = JSON.parse(e.data);
+
+      switch (d.type) {
+        case 'thought':
+          addMsg('thought', `[${d.iteration || '?'}] ${d.content}`);
+          break;
+
+        case 'tool_call':
+          const argsStr = JSON.stringify(d.args || {}, null, 1);
+          addMsg('tool-call', `Calling ${d.tool}(${argsStr})`);
+          break;
+
+        case 'tool_result':
+          addMsg(d.success === false ? 'tool-result error' : 'tool-result', truncate(d.content, 800));
+          break;
+
+        case 'acquiring_tool':
+          addMsg('acquiring', `<span class="spinner"></span>Acquiring new tool: ${d.capability}\n${d.detail || ''}`);
+          break;
+
+        case 'tool_acquired':
+          addMsg('acquired', `New tool acquired: ${d.tool_name}\n${d.description || ''}\nTags: ${(d.tags || []).join(', ')}`);
+          refreshTools(d.tool_name);
+          break;
+
+        case 'tool_acquisition_failed':
+          addMsg('error-msg', `Failed to acquire tool: ${d.capability}`);
+          break;
+
+        case 'final_answer':
+          addMsg('answer', d.content);
+          setRunning(false);
+          refreshTools();
+          break;
+
+        case 'impossible':
+          addMsg('error-msg', `Task impossible: ${d.content}`);
+          setRunning(false);
+          break;
+
+        case 'error':
+          addMsg('error-msg', d.content);
+          setRunning(false);
+          break;
+
+        case 'done':
+          setRunning(false);
+          if (eventSource) { eventSource.close(); eventSource = null; }
+          break;
+
+        case 'heartbeat':
+          break;
+      }
+    }
+
+    function addMsg(cls, html) {
+      const div = document.createElement('div');
+      div.className = `msg ${cls}`;
+      div.innerHTML = html;
+      const container = document.getElementById('messages');
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function truncate(s, n) {
+      if (!s) return '';
+      return s.length > n ? s.slice(0, n) + '...' : s;
+    }
+
+    function setRunning(state) {
+      running = state;
+      document.getElementById('run-btn').disabled = state;
+      document.getElementById('run-btn').textContent = state ? 'Running...' : 'Run';
+    }
+
+    function refreshTools(newToolName = null) {
+      fetch('/api/tools')
+        .then(r => r.json())
+        .then(tools => {
+          const list = document.getElementById('tool-list');
+          list.innerHTML = '';
+
+          tools.forEach(tool => {
+            const isSeed = tool.created_for_task === 'seed';
+            const isNew = tool.name === newToolName;
+
+            const card = document.createElement('div');
+            card.className = `tool-card ${isSeed ? 'seed' : 'generated'} ${isNew ? 'new-tool' : ''}`;
+            card.innerHTML = `
+              <h4>${escHtml(tool.name)}</h4>
+              <div class="desc">${escHtml(tool.description)}</div>
+              <div class="tags">${(tool.tags || []).map(t => `<span>${escHtml(t)}</span>`).join('')}</div>
+              <div class="meta">
+                <span>Used ${tool.use_count}x</span>
+                <span>${isSeed ? 'seed' : 'generated'}</span>
+              </div>
+            `;
+            list.appendChild(card);
+          });
+
+          document.getElementById('tool-count').textContent = `${tools.length} tools`;
+        });
+    }
+
+    function escHtml(s) {
+      const div = document.createElement('div');
+      div.textContent = s || '';
+      return div.innerHTML;
+    }
+
+    // Load tools on page load
+    refreshTools();
+  </script>
+</body>
+</html>
