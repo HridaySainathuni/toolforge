@@ -9,7 +9,7 @@ import anthropic
 
 from agent.failure_store import FailureStore
 from agent.prompts import build_agent_system_prompt
-from agent.retriever import embed
+from agent.retriever import embed, ToolRetriever
 from agent.sandbox import run_in_sandbox
 from agent.tool_generator import ToolGenerator
 from config import Config
@@ -28,7 +28,8 @@ class AgentLoop:
         self.events = event_queue
         self.client = anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
         self.generator = ToolGenerator()
-        self.failure_store = FailureStore()
+        self.failure_store = FailureStore(db_path=Config.FAILURES_PATH)
+        self.retriever = ToolRetriever(library=tool_library, threshold=Config.RETRIEVAL_THRESHOLD)
         self.messages: list[dict[str, str]] = []
         self.iteration = 0
 
@@ -92,7 +93,22 @@ class AgentLoop:
         return {"success": False, "error": "Max iterations reached"}
 
     def _call_claude(self, task: str) -> dict[str, Any] | None:
-        tools_for_prompt = self.library.get_all_tools_for_prompt()
+        if Config.ABLATION_NO_LIBRARY:
+            tools_for_prompt = []
+        else:
+            relevant = self.retriever.retrieve(task, top_k=Config.RETRIEVAL_TOP_K)
+            if relevant:
+                tools_for_prompt = [
+                    {
+                        "name": t["name"],
+                        "description": t["description"],
+                        "args": t["args"],
+                        "returns": t["returns"],
+                    }
+                    for t in relevant
+                ]
+            else:
+                tools_for_prompt = []
         system = build_agent_system_prompt(tools_for_prompt)
 
         try:

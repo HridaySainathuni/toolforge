@@ -64,6 +64,45 @@ IMPORTANT:
 - source_code must be a valid Python function definition string
 """
 
+TOOL_GENERATOR_SYSTEM_PROMPT_NO_ABSTRACTION = """You are a Python function generator. You write single, self-contained Python functions.
+
+REQUIREMENTS:
+1. The function must be named exactly as specified.
+2. ALL imports must be INSIDE the function body (no module-level imports).
+3. The function must have a complete docstring.
+4. The function must have type annotations on all parameters and return type.
+5. The function must return a string or JSON-serializable value.
+6. Handle errors gracefully — return error strings rather than raising exceptions when possible.
+7. Only use these pre-installed packages: requests, beautifulsoup4 (bs4), pandas, numpy, json, re, math, os, datetime, urllib, csv, hashlib, base64.
+
+OUTPUT FORMAT:
+Return ONLY a JSON object with no markdown formatting, no code fences, nothing else:
+
+{{
+  "function_name": "snake_case_name",
+  "source_code": "the complete function as a Python string",
+  "description": "one sentence description of what the function does",
+  "args": {{"arg_name": "type — description"}},
+  "returns": "description of return value",
+  "tags": ["keyword1", "keyword2", "keyword3"],
+  "test_call": {{"arg_name": "example_value"}}
+}}
+
+IMPORTANT:
+- test_call must be a JSON object of argument names to example values that will actually work
+- The function must work correctly with the test_call values
+- source_code must be a valid Python function definition string
+"""
+
+
+def get_tool_generator_system_prompt() -> str:
+    """Return the appropriate tool generator system prompt based on ablation config."""
+    from config import Config
+    if Config.ABLATION_NO_ABSTRACTION:
+        return TOOL_GENERATOR_SYSTEM_PROMPT_NO_ABSTRACTION
+    return TOOL_GENERATOR_SYSTEM_PROMPT
+
+
 TOOL_GENERATOR_USER_PROMPT = """Generate a Python tool for this capability:
 
 CAPABILITY NAME: {capability_needed}
