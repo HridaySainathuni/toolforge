@@ -5,12 +5,11 @@ import logging
 import queue
 from typing import Any
 
-import numpy as np
-
 import anthropic
 
 from agent.failure_store import FailureStore
 from agent.prompts import build_agent_system_prompt
+from agent.retriever import embed
 from agent.sandbox import run_in_sandbox
 from agent.tool_generator import ToolGenerator
 from config import Config
@@ -171,8 +170,7 @@ class AgentLoop:
             self._emit("tool_acquisition_failed", {"capability": capability_needed})
             return None
 
-        zero_emb = np.zeros(384, dtype=np.float32)
-        self.library.add_tool(spec, embedding=zero_emb, task_context=task)
+        self.library.add_tool(spec, embedding=embed(spec.get("description", spec["name"])), task_context=task)
         self.failure_store.clear(task)
 
         self._emit("tool_acquired", {

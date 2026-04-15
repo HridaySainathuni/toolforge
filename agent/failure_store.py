@@ -53,7 +53,7 @@ class FailureStore:
         with self._conn() as conn:
             rows = conn.execute(
                 """SELECT attempted_code, error_msg FROM failures
-                   WHERE task=? ORDER BY timestamp DESC LIMIT ?""",
+                   WHERE task=? ORDER BY id DESC LIMIT ?""",
                 (task, limit),
             ).fetchall()
         return [{"attempted_code": r["attempted_code"], "error_msg": r["error_msg"]} for r in rows]

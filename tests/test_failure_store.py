@@ -29,3 +29,7 @@ def test_get_recent_respects_limit(tmp_failures):
         tmp_failures.log("task", f"code {i}", f"error {i}")
     recent = tmp_failures.get_recent("task", limit=3)
     assert len(recent) == 3
+    # Most recent (highest i) should be first
+    assert recent[0]["error_msg"] == "error 9"
+    assert recent[1]["error_msg"] == "error 8"
+    assert recent[2]["error_msg"] == "error 7"
