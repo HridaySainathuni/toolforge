@@ -66,11 +66,16 @@ class Librarian:
         for t in tools:
             raw = t.get("embedding")
             if raw is None:
+                log.warning("Librarian: tool '%s' has no embedding, using zero vector for clustering", t["name"])
                 embeddings.append(np.zeros(384, dtype=np.float32))
             else:
                 embeddings.append(np.frombuffer(raw, dtype=np.float32))
 
         E = np.array(embeddings)
+        # Normalize rows so dot product = cosine similarity
+        norms = np.linalg.norm(E, axis=1, keepdims=True)
+        norms = np.where(norms == 0, 1.0, norms)  # avoid div-by-zero for zero vectors
+        E = E / norms
         assigned = [False] * len(tools)
         clusters = []
 
@@ -116,9 +121,15 @@ class Librarian:
             if text.startswith("```"):
                 lines = [l for l in text.split("\n") if not l.strip().startswith("```")]
                 text = "\n".join(lines).strip()
-            proposal = json.loads(text)
         except Exception as e:
             log.warning("Librarian LLM call failed: %s", e)
+            return
+
+        try:
+            proposal = json.loads(text)
+        except json.JSONDecodeError as json_err:
+            log.warning("Librarian: LLM returned invalid JSON: %s", json_err)
+            log.debug("Librarian raw response: %s", text[:500] if text else "")
             return
 
         for merge in proposal.get("merges", []):
@@ -135,33 +146,46 @@ class Librarian:
         if not source or not new_name or not replace_names:
             return
 
-        # Validate: check no SyntaxError (args may fail — that's OK)
+        # Guard: proposed name must not already exist outside this cluster
+        existing = self.library.get_source_code(new_name)
+        if existing is not None and new_name not in replace_names:
+            log.warning("Librarian: proposed merge name '%s' conflicts with existing tool, skipping", new_name)
+            return
+
+        if new_name in replace_names:
+            log.warning("Librarian: merge new_name '%s' is one of the replaced names — reorder is unsafe, skipping", new_name)
+            return
+
+        # Validate: check no sandbox error (args may fail — that's OK)
         result = run_in_sandbox(
             source_code=source,
             function_name=new_name,
             args={},
             timeout=Config.VALIDATION_TIMEOUT,
         )
-        if result.error and "SyntaxError" in (result.error or ""):
-            log.warning("Librarian: merged tool %s has SyntaxError, skipping", new_name)
+        if result.error:
+            log.warning("Librarian: merged tool %s failed validation, skipping", new_name)
             return
 
-        for name in replace_names:
-            self.library.delete_tool(name)
-
-        new_emb = embed(merge.get("description", new_name))
-        self.library.add_tool(
-            {
-                "name": new_name,
-                "description": merge.get("description", ""),
-                "source_code": source,
-                "args": {},
-                "returns": "str",
-                "tags": [],
-            },
-            embedding=new_emb,
-            task_context="librarian_merge",
-        )
+        try:
+            for name in replace_names:
+                self.library.delete_tool(name)
+            new_emb = embed(merge.get("description", new_name))
+            self.library.add_tool(
+                {
+                    "name": new_name,
+                    "description": merge.get("description", ""),
+                    "source_code": source,
+                    "args": {},
+                    "returns": "str",
+                    "tags": [],
+                },
+                embedding=new_emb,
+                task_context="librarian_merge",
+            )
+        except Exception as e:
+            log.error("Librarian: failed to apply merge %s → %s, library may have lost tools: %s", replace_names, new_name, e)
+            return
         report.tools_merged += len(replace_names)
         report.details.append(f"Merged {replace_names} → {new_name}")
         log.info("Librarian: merged %s → %s", replace_names, new_name)
@@ -174,30 +198,40 @@ class Librarian:
         if not source or not new_name or not old_name:
             return
 
+        # Guard: proposed name must not already exist outside this rename
+        existing = self.library.get_source_code(new_name)
+        if existing is not None and new_name != old_name:
+            log.warning("Librarian: proposed refactor name '%s' conflicts with existing tool, skipping", new_name)
+            return
+
         result = run_in_sandbox(
             source_code=source,
             function_name=new_name,
             args={},
             timeout=Config.VALIDATION_TIMEOUT,
         )
-        if result.error and "SyntaxError" in (result.error or ""):
-            log.warning("Librarian: refactored tool %s has SyntaxError, skipping", new_name)
+        if result.error:
+            log.warning("Librarian: refactored tool %s failed validation, skipping", new_name)
             return
 
-        new_emb = embed(refactor.get("description", new_name))
-        self.library.delete_tool(old_name)
-        self.library.add_tool(
-            {
-                "name": new_name,
-                "description": refactor.get("description", ""),
-                "source_code": source,
-                "args": {},
-                "returns": "str",
-                "tags": [],
-            },
-            embedding=new_emb,
-            task_context="librarian_refactor",
-        )
+        try:
+            new_emb = embed(refactor.get("description", new_name))
+            self.library.delete_tool(old_name)
+            self.library.add_tool(
+                {
+                    "name": new_name,
+                    "description": refactor.get("description", ""),
+                    "source_code": source,
+                    "args": {},
+                    "returns": "str",
+                    "tags": [],
+                },
+                embedding=new_emb,
+                task_context="librarian_refactor",
+            )
+        except Exception as e:
+            log.error("Librarian: failed to apply refactor %s → %s: %s", old_name, new_name, e)
+            return
         report.tools_refactored += 1
         report.details.append(f"Refactored {old_name} → {new_name}")
         log.info("Librarian: refactored %s → %s", old_name, new_name)
