@@ -7,7 +7,7 @@ from typing import Any
 import anthropic
 
 from agent.prompts import (
-    TOOL_GENERATOR_SYSTEM_PROMPT,
+    get_tool_generator_system_prompt,
     build_tool_fix_prompt,
     build_tool_gen_user_prompt,
     build_tool_gen_user_prompt_with_failures,
@@ -33,7 +33,7 @@ class ToolGenerator:
             capability_needed, capability_detail, task_context, failures or []
         )
 
-        spec = self._call_claude(TOOL_GENERATOR_SYSTEM_PROMPT, user_prompt)
+        spec = self._call_claude(get_tool_generator_system_prompt(), user_prompt)
         if spec is None:
             return None
 
@@ -60,7 +60,7 @@ class ToolGenerator:
                     error=validation.error or "Unknown error",
                     test_call=spec.get("test_call", {}),
                 )
-                fixed = self._call_claude(TOOL_GENERATOR_SYSTEM_PROMPT, fix_prompt)
+                fixed = self._call_claude(get_tool_generator_system_prompt(), fix_prompt)
                 if fixed:
                     fixed["function_name"] = function_name
                     fixed["name"] = function_name

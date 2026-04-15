@@ -7,7 +7,11 @@ import uuid
 
 from flask import Flask, Response, jsonify, render_template, request
 
+import anthropic as _anthropic
+
+from agent.librarian import Librarian
 from agent.loop import AgentLoop
+from config import Config
 from library.tool_library import ToolLibrary
 
 app = Flask(__name__, template_folder="templates")
@@ -88,3 +92,19 @@ def list_tools():
     if tool_library is None:
         return jsonify([])
     return jsonify(tool_library.get_all_tools_public())
+
+
+@app.route("/api/librarian/run", methods=["POST"])
+def run_librarian():
+    if tool_library is None:
+        return jsonify({"error": "Library not initialized"}), 500
+    client = _anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
+    librarian = Librarian(library=tool_library, client=client)
+    report = librarian.run_pass()
+    return jsonify({
+        "tools_merged": report.tools_merged,
+        "tools_refactored": report.tools_refactored,
+        "library_size_before": report.library_size_before,
+        "library_size_after": report.library_size_after,
+        "details": report.details,
+    })
