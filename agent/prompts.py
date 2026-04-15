@@ -119,3 +119,27 @@ def build_tool_fix_prompt(
         error=error,
         test_call=json.dumps(test_call),
     )
+
+
+def build_tool_gen_user_prompt_with_failures(
+    capability_needed: str,
+    capability_detail: str,
+    task_context: str,
+    failures: list[dict],
+) -> tuple[str, str]:
+    """Like build_tool_gen_user_prompt but appends past failure context."""
+    base_prompt, function_name = build_tool_gen_user_prompt(
+        capability_needed, capability_detail, task_context
+    )
+
+    if not failures:
+        return base_prompt, function_name
+
+    parts = []
+    for i, f in enumerate(failures, 1):
+        parts.append(
+            f"PREVIOUS ATTEMPT {i}:\nCode:\n{f.get('attempted_code', '')}\nError: {f.get('error_msg', '')}"
+        )
+    failure_block = "\n\nPREVIOUS FAILED ATTEMPTS (avoid repeating these mistakes):\n" + "\n\n".join(parts)
+
+    return base_prompt + failure_block, function_name

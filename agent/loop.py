@@ -9,6 +9,7 @@ import numpy as np
 
 import anthropic
 
+from agent.failure_store import FailureStore
 from agent.prompts import build_agent_system_prompt
 from agent.sandbox import run_in_sandbox
 from agent.tool_generator import ToolGenerator
@@ -28,6 +29,7 @@ class AgentLoop:
         self.events = event_queue
         self.client = anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
         self.generator = ToolGenerator()
+        self.failure_store = FailureStore()
         self.messages: list[dict[str, str]] = []
         self.iteration = 0
 
@@ -156,18 +158,22 @@ class AgentLoop:
             "detail": capability_detail,
         })
 
+        failures = self.failure_store.get_recent(task, limit=3)
         spec = self.generator.generate(
             capability_needed=capability_needed,
             capability_detail=capability_detail,
             task_context=task,
+            failures=failures,
         )
 
         if spec is None:
+            self.failure_store.log(task, "<generation failed>", "LLM refused or produced invalid Python")
             self._emit("tool_acquisition_failed", {"capability": capability_needed})
             return None
 
         zero_emb = np.zeros(384, dtype=np.float32)
         self.library.add_tool(spec, embedding=zero_emb, task_context=task)
+        self.failure_store.clear(task)
 
         self._emit("tool_acquired", {
             "tool_name": spec["name"],

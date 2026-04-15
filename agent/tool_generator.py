@@ -10,6 +10,7 @@ from agent.prompts import (
     TOOL_GENERATOR_SYSTEM_PROMPT,
     build_tool_fix_prompt,
     build_tool_gen_user_prompt,
+    build_tool_gen_user_prompt_with_failures,
 )
 from agent.sandbox import SandboxResult, run_in_sandbox
 from config import Config
@@ -26,9 +27,10 @@ class ToolGenerator:
         capability_needed: str,
         capability_detail: str,
         task_context: str,
+        failures: list[dict] | None = None,
     ) -> dict[str, Any] | None:
-        user_prompt, function_name = build_tool_gen_user_prompt(
-            capability_needed, capability_detail, task_context
+        user_prompt, function_name = build_tool_gen_user_prompt_with_failures(
+            capability_needed, capability_detail, task_context, failures or []
         )
 
         spec = self._call_claude(TOOL_GENERATOR_SYSTEM_PROMPT, user_prompt)
