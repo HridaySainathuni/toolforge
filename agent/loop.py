@@ -32,10 +32,16 @@ class AgentLoop:
         self.retriever = ToolRetriever(library=tool_library, threshold=Config.RETRIEVAL_THRESHOLD)
         self.messages: list[dict[str, str]] = []
         self.iteration = 0
+        self._tool_created: bool = False
+        self._tool_reused: bool = False
+        self._tool_name_used: str = ""
 
     def run(self, task: str) -> dict[str, Any]:
         self.messages = [{"role": "user", "content": task}]
         self.iteration = 0
+        self._tool_created = False
+        self._tool_reused = False
+        self._tool_name_used = ""
 
         self._emit("task_start", {"task": task})
 
@@ -45,7 +51,7 @@ class AgentLoop:
             response = self._call_claude(task)
             if response is None:
                 self._emit("error", {"content": "Failed to get a response from Claude"})
-                return {"success": False, "error": "Claude API failure"}
+                return {"success": False, "error": "Claude API failure", "tool_created": False, "tool_reused": False, "tool_used": "", "attempts": self.iteration}
 
             thought = response.get("thought", "")
             action = response.get("action", "")
@@ -74,12 +80,26 @@ class AgentLoop:
             elif action == "final_answer":
                 answer = response.get("answer", "")
                 self._emit("final_answer", {"content": answer})
-                return {"success": True, "answer": answer}
+                return {
+                    "success": True,
+                    "answer": answer,
+                    "tool_created": self._tool_created,
+                    "tool_reused": self._tool_reused,
+                    "tool_used": self._tool_name_used,
+                    "attempts": self.iteration,
+                }
 
             elif action == "impossible":
                 reason = response.get("reason", "Unknown reason")
                 self._emit("impossible", {"content": reason})
-                return {"success": False, "reason": reason}
+                return {
+                    "success": False,
+                    "reason": reason,
+                    "tool_created": self._tool_created,
+                    "tool_reused": self._tool_reused,
+                    "tool_used": self._tool_name_used,
+                    "attempts": self.iteration,
+                }
 
             else:
                 self._emit("error", {"content": f"Unknown action: {action}"})
@@ -90,7 +110,7 @@ class AgentLoop:
                 })
 
         self._emit("error", {"content": "Max iterations reached"})
-        return {"success": False, "error": "Max iterations reached"}
+        return {"success": False, "error": "Max iterations reached", "tool_created": self._tool_created, "tool_reused": self._tool_reused, "tool_used": self._tool_name_used, "attempts": self.iteration}
 
     def _call_claude(self, task: str) -> dict[str, Any] | None:
         if Config.ABLATION_NO_LIBRARY:
@@ -157,6 +177,8 @@ class AgentLoop:
 
         if result.success:
             self.library.increment_use(tool_name)
+            self._tool_reused = True
+            self._tool_name_used = tool_name
             self._emit("tool_result", {"content": result.result or "", "success": True})
             return result.result or ""
         else:
@@ -188,6 +210,8 @@ class AgentLoop:
 
         self.library.add_tool(spec, embedding=embed(spec.get("description", spec["name"])), task_context=task)
         self.failure_store.clear(task)
+        self._tool_created = True
+        self._tool_name_used = spec["name"]
 
         self._emit("tool_acquired", {
             "tool_name": spec["name"],
