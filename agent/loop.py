@@ -5,6 +5,8 @@ import logging
 import queue
 from typing import Any
 
+import numpy as np
+
 import anthropic
 
 from agent.prompts import build_agent_system_prompt
@@ -164,7 +166,8 @@ class AgentLoop:
             self._emit("tool_acquisition_failed", {"capability": capability_needed})
             return None
 
-        self.library.add_tool(spec, task_context=task)
+        zero_emb = np.zeros(384, dtype=np.float32)
+        self.library.add_tool(spec, embedding=zero_emb, task_context=task)
 
         self._emit("tool_acquired", {
             "tool_name": spec["name"],

@@ -11,5 +11,5 @@ class Config:
     SANDBOX_TIMEOUT: int = 10
     VALIDATION_TIMEOUT: int = 15
     TOOL_GEN_RETRIES: int = 3
-    LIBRARY_PATH: str = os.path.join(os.path.dirname(__file__), "library", "tool_library.json")
+    LIBRARY_PATH: str = os.path.join(os.path.dirname(__file__), "library", "tool_library.db")
     PORT: int = 5000
