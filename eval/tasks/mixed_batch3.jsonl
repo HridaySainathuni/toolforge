@@ -1,0 +1,50 @@
+{"id": "x3_001", "task": "Count the number of prime digits (2,3,5,7) in 12345.", "expected": "3", "domain": "mixed"}
+{"id": "x3_002", "task": "What is the sum of ASCII values of 'Hello'?", "expected": "500", "domain": "mixed"}
+{"id": "x3_003", "task": "How many words in 'hello world foo bar' have an even number of characters?", "expected": "2", "domain": "mixed"}
+{"id": "x3_004", "task": "What is the product of the digits of 2357?", "expected": "210", "domain": "mixed"}
+{"id": "x3_005", "task": "Convert the number 26 to its corresponding uppercase letter (A=1, B=2, ..., Z=26).", "expected": "Z", "domain": "mixed"}
+{"id": "x3_006", "task": "What is the length of the longest palindrome word in 'level noon racecar step'?", "expected": "7", "domain": "mixed"}
+{"id": "x3_007", "task": "What is the sum of all digit characters in 'abc123def456'?", "expected": "21", "domain": "mixed"}
+{"id": "x3_008", "task": "How many 3-letter words are in 'the cat sat on a mat by the big red bus'?", "expected": "7", "domain": "mixed"}
+{"id": "x3_009", "task": "What is the average word length in 'the quick brown fox'? Round to 2 decimal places.", "expected": "3.75", "domain": "mixed"}
+{"id": "x3_010", "task": "Generate the first 8 Fibonacci numbers as a comma-separated string.", "expected": "1, 1, 2, 3, 5, 8, 13, 21", "domain": "mixed"}
+{"id": "x3_011", "task": "How many letters in the English alphabet are valid Roman numeral characters (I,V,X,L,C,D,M)?", "expected": "7", "domain": "mixed"}
+{"id": "x3_012", "task": "Is the number of characters in 'hello' (5) a prime number? Answer true or false.", "expected": "true", "domain": "mixed"}
+{"id": "x3_013", "task": "Encode the number 255 as a zero-padded 8-character binary string.", "expected": "11111111", "domain": "mixed"}
+{"id": "x3_014", "task": "How many characters does it take to spell out the number 17 as 'seventeen'?", "expected": "9", "domain": "mixed"}
+{"id": "x3_015", "task": "What is the checksum (digit sum) of the year 2025?", "expected": "9", "domain": "mixed"}
+{"id": "x3_016", "task": "Sort the words in 'banana apple cherry date' alphabetically, joined by space.", "expected": "apple banana cherry date", "domain": "mixed"}
+{"id": "x3_017", "task": "What is the sum of ASCII values of all uppercase letters in 'Hello World'?", "expected": "159", "domain": "mixed"}
+{"id": "x3_018", "task": "What is the largest palindrome number less than 1000?", "expected": "999", "domain": "mixed"}
+{"id": "x3_019", "task": "Convert the string 'abc' to its numeric alphabet positions (a=1) and return the sum.", "expected": "6", "domain": "mixed"}
+{"id": "x3_020", "task": "What is the product of the lengths of the words in 'cat is fun'?", "expected": "27", "domain": "mixed"}
+{"id": "x3_021", "task": "How many even numbers are in the first 15 Fibonacci numbers?", "expected": "5", "domain": "mixed"}
+{"id": "x3_022", "task": "What Roman numeral represents 42?", "expected": "XLII", "domain": "mixed"}
+{"id": "x3_023", "task": "How many numbers from 1 to 1000 contain the digit 7?", "expected": "271", "domain": "mixed"}
+{"id": "x3_024", "task": "What is the sum of the positions (1-indexed) of all vowels in 'hello'?", "expected": "10", "domain": "mixed"}
+{"id": "x3_025", "task": "How many prime numbers have exactly 2 digits?", "expected": "21", "domain": "mixed"}
+{"id": "x3_026", "task": "Generate a comma-separated list of the first 5 perfect squares.", "expected": "1, 4, 9, 16, 25", "domain": "mixed"}
+{"id": "x3_027", "task": "How many numbers from 1 to 50 are divisible by 3 or 5 but not both?", "expected": "23", "domain": "mixed"}
+{"id": "x3_028", "task": "Find the first repeated character in 'abcdebc'.", "expected": "b", "domain": "mixed"}
+{"id": "x3_029", "task": "How many 3-digit numbers are perfect cubes?", "expected": "4", "domain": "mixed"}
+{"id": "x3_030", "task": "What is the Collatz sequence length starting from 27?", "expected": "112", "domain": "mixed"}
+{"id": "x3_031", "task": "What is the sum of the first 10 square numbers?", "expected": "385", "domain": "mixed"}
+{"id": "x3_032", "task": "How many numbers between 1 and 100 are both perfect squares and have an even digit sum?", "expected": "5", "domain": "mixed"}
+{"id": "x3_033", "task": "What is the number of distinct letters in 'mississippi'?", "expected": "4", "domain": "mixed"}
+{"id": "x3_034", "task": "How many times does the digit 1 appear in numbers from 1 to 20?", "expected": "12", "domain": "mixed"}
+{"id": "x3_035", "task": "What is the sum of all 2-digit palindromes?", "expected": "495", "domain": "mixed"}
+{"id": "x3_036", "task": "How many letters in 'Hello World' are in the second half of the alphabet (N-Z)?", "expected": "3", "domain": "mixed"}
+{"id": "x3_037", "task": "What is the number of characters in the hex representation of 255 (no 0x prefix)?", "expected": "2", "domain": "mixed"}
+{"id": "x3_038", "task": "How many words in 'one two three four five six seven eight nine ten' have a prime number of letters?", "expected": "5", "domain": "mixed"}
+{"id": "x3_039", "task": "What is the number of seconds in exactly 3 days and 4 hours?", "expected": "273600", "domain": "mixed"}
+{"id": "x3_040", "task": "What is the numeric value of the string '42abc' (extract first number only)?", "expected": "42", "domain": "mixed"}
+{"id": "x3_041", "task": "How many numbers from 1 to 100 are divisible by 7?", "expected": "14", "domain": "mixed"}
+{"id": "x3_042", "task": "What is the sum of digits of the number 2 raised to the power 10 (1024)?", "expected": "7", "domain": "mixed"}
+{"id": "x3_043", "task": "What is the length of the string representation of 1 million (1000000)?", "expected": "7", "domain": "mixed"}
+{"id": "x3_044", "task": "How many vowels are in the word 'pneumonoultramicroscopicsilicovolcanoconiosis'?", "expected": "20", "domain": "mixed"}
+{"id": "x3_045", "task": "What is the smallest number that is divisible by all integers from 1 to 10?", "expected": "2520", "domain": "mixed"}
+{"id": "x3_046", "task": "How many letters are shared between 'python' and 'typhoon'?", "expected": "4", "domain": "mixed"}
+{"id": "x3_047", "task": "What is the number of trailing zeros in 100 factorial?", "expected": "24", "domain": "mixed"}
+{"id": "x3_048", "task": "What is the sum of all numbers from 1 to 1000 that are divisible by 3?", "expected": "166833", "domain": "mixed"}
+{"id": "x3_049", "task": "How many numbers from 1 to 50 are perfect squares?", "expected": "7", "domain": "mixed"}
+{"id": "x3_050", "task": "What is the number of uppercase letters in 'The Quick Brown Fox Jumps Over The Lazy Dog'?", "expected": "8", "domain": "mixed"}

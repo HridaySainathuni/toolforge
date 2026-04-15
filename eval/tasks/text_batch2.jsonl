@@ -1,0 +1,50 @@
+{"id": "t2_001", "task": "Count the number of vowels in 'extraordinary'.", "expected": "6", "domain": "text"}
+{"id": "t2_002", "task": "Reverse the string 'hello world'.", "expected": "dlrow olleh", "domain": "text"}
+{"id": "t2_003", "task": "How many words are in 'The quick brown fox jumps over the lazy dog'?", "expected": "9", "domain": "text"}
+{"id": "t2_004", "task": "Convert 'hello world' to title case.", "expected": "Hello World", "domain": "text"}
+{"id": "t2_005", "task": "Is 'racecar' a palindrome? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_006", "task": "Remove all spaces from 'h e l l o  w o r l d'.", "expected": "helloworld", "domain": "text"}
+{"id": "t2_007", "task": "Count the occurrences of the letter 'l' in 'hello world'.", "expected": "3", "domain": "text"}
+{"id": "t2_008", "task": "What is the longest word in 'The quick brown fox jumps'?", "expected": "quick", "domain": "text"}
+{"id": "t2_009", "task": "How many unique characters are in 'mississippi'?", "expected": "4", "domain": "text"}
+{"id": "t2_010", "task": "Replace all spaces with underscores in 'hello world foo bar'.", "expected": "hello_world_foo_bar", "domain": "text"}
+{"id": "t2_011", "task": "What is the most frequent word in 'to be or not to be that is the question to be'?", "expected": "to", "domain": "text"}
+{"id": "t2_012", "task": "Convert 'Hello World' to snake_case.", "expected": "hello_world", "domain": "text"}
+{"id": "t2_013", "task": "Does 'Python3.11' contain a digit? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_014", "task": "What is the 3rd word in 'the quick brown fox'?", "expected": "brown", "domain": "text"}
+{"id": "t2_015", "task": "Truncate 'Hello, World!' to 5 characters.", "expected": "Hello", "domain": "text"}
+{"id": "t2_016", "task": "Strip leading and trailing spaces from '   hello   '.", "expected": "hello", "domain": "text"}
+{"id": "t2_017", "task": "Are 'listen' and 'silent' anagrams? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_018", "task": "How many capital letters are in 'Hello World Python'?", "expected": "3", "domain": "text"}
+{"id": "t2_019", "task": "Repeat the string 'ab' 4 times.", "expected": "abababab", "domain": "text"}
+{"id": "t2_020", "task": "Join ['apple', 'banana', 'cherry'] with ' | '.", "expected": "apple | banana | cherry", "domain": "text"}
+{"id": "t2_021", "task": "Is 'Python' a substring of 'I love Python programming'? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_022", "task": "What index does 'world' start at in 'hello world'?", "expected": "6", "domain": "text"}
+{"id": "t2_023", "task": "How many consonants are in 'programming'?", "expected": "8", "domain": "text"}
+{"id": "t2_024", "task": "What is the character at index 4 in 'python'?", "expected": "o", "domain": "text"}
+{"id": "t2_025", "task": "Encode 'Hello' in base64.", "expected": "SGVsbG8=", "domain": "text"}
+{"id": "t2_026", "task": "How many characters are in 'supercalifragilistic'?", "expected": "20", "domain": "text"}
+{"id": "t2_027", "task": "What is the second-to-last character in 'python'?", "expected": "o", "domain": "text"}
+{"id": "t2_028", "task": "Is 'level' a palindrome? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_029", "task": "How many times does 'ab' appear in 'ababab'?", "expected": "3", "domain": "text"}
+{"id": "t2_030", "task": "What is the longest common prefix of 'flower', 'flow', 'flight'?", "expected": "fl", "domain": "text"}
+{"id": "t2_031", "task": "Count words that start with 'p' in 'python is pretty powerful and popular'.", "expected": "4", "domain": "text"}
+{"id": "t2_032", "task": "What is the MD5 hash of 'hello'?", "expected": "5d41402abc4b2a76b9719d911017c592", "domain": "text"}
+{"id": "t2_033", "task": "Split 'a,b,c,d,e' by comma and return as a JSON list.", "expected": "[\"a\", \"b\", \"c\", \"d\", \"e\"]", "domain": "text"}
+{"id": "t2_034", "task": "Remove all punctuation from 'Hello, World! How are you?'", "expected": "Hello World How are you", "domain": "text"}
+{"id": "t2_035", "task": "What is the ROT13 encoding of 'Hello'?", "expected": "Uryyb", "domain": "text"}
+{"id": "t2_036", "task": "How many words longer than 4 characters are in 'The quick brown fox jumps over the lazy dog'?", "expected": "4", "domain": "text"}
+{"id": "t2_037", "task": "Pad the string 'hi' to length 10 with dashes on the right.", "expected": "hi--------", "domain": "text"}
+{"id": "t2_038", "task": "Does 'foobar' start with 'foo'? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_039", "task": "Is 'abcde' in alphabetical order? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_040", "task": "How many lines result from splitting a string that has 3 newlines?", "expected": "4", "domain": "text"}
+{"id": "t2_041", "task": "What is the numeric value when you convert '42' to an integer and add 8?", "expected": "50", "domain": "text"}
+{"id": "t2_042", "task": "Extract the domain from the URL 'https://www.example.com/path'.", "expected": "www.example.com", "domain": "text"}
+{"id": "t2_043", "task": "What is the frequency of 'a' in 'banana'?", "expected": "3", "domain": "text"}
+{"id": "t2_044", "task": "Interleave the strings 'abc' and '123' character by character.", "expected": "a1b2c3", "domain": "text"}
+{"id": "t2_045", "task": "What is the lexicographic rank of 'b' among ['a','b','c','d','e'] (1-indexed)?", "expected": "2", "domain": "text"}
+{"id": "t2_046", "task": "How many characters are needed to represent 2^32 as a decimal string?", "expected": "10", "domain": "text"}
+{"id": "t2_047", "task": "Convert 'CamelCaseText' to separate words: 'Camel Case Text'.", "expected": "Camel Case Text", "domain": "text"}
+{"id": "t2_048", "task": "What is the Caesar cipher (shift=3) of 'ABC'?", "expected": "DEF", "domain": "text"}
+{"id": "t2_049", "task": "Is 'A man a plan a canal Panama' a palindrome when ignoring case and spaces? Answer true or false.", "expected": "true", "domain": "text"}
+{"id": "t2_050", "task": "Find all words with exactly 5 letters in 'The quick brown fox jumps over lazy dogs'. Return as a JSON list.", "expected": "[\"quick\", \"brown\", \"jumps\"]", "domain": "text"}
