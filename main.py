@@ -25,7 +25,7 @@ def main() -> None:
 
     log.info("Loading tool library from %s", Config.LIBRARY_PATH)
     library = ToolLibrary(Config.LIBRARY_PATH)
-    log.info("Loaded %d tools", len(library.tools))
+    log.info("Loaded %d tools", len(library.get_all()))
 
     app = init_app(library)
 

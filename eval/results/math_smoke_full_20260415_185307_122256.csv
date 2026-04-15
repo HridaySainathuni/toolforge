@@ -1,0 +1,8 @@
+task_id,domain,task,expected,actual,success,tool_created,tool_reused,tool_name,attempts,time_seconds,condition
+m1_001,math,What is 17 multiplied by 23?,391,17 multiplied by 23 equals **391**.,False,False,False,,1,5.04,full
+m1_002,math,What is the square root of 144?,12,The square root of 144 is **12**. (Since 12 × 12 = 144),False,False,False,,1,4.25,full
+m1_003,math,What is 15% of 240?,36,15% of 240 is **36**. (Calculated as 0.15 × 240 = 36),False,False,False,,1,1.89,full
+m1_004,math,What is the sum of the first 10 natural numbers?,55,"The sum of the first 10 natural numbers (1 through 10) is **55**.
+
+This can be calculated using the formula: n(n+1)/2 = 10×11/2 = **55**",False,False,False,,1,3.42,full
+m1_005,math,Is 97 a prime number?,true,"Yes, 97 is a prime number. It is only divisible by 1 and itself. In fact, 97 is the largest prime number less than 100.",False,False,False,,1,2.56,full

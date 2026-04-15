@@ -120,6 +120,28 @@
       color: #d0b0ff;
       font-size: 0.95em;
       font-weight: 500;
+      white-space: normal;
+    }
+
+    .msg.answer .answer-label {
+      font-size: 0.72em;
+      color: #8b5cf6;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .msg.answer pre {
+      background: #120d1f;
+      border: 1px solid #2d1f4a;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-family: 'SF Mono', 'Fira Code', monospace;
+      font-size: 0.82em;
+      color: #c0a0ff;
+      overflow-x: auto;
+      white-space: pre;
+      margin-top: 4px;
     }
 
     .msg.error-msg {
@@ -382,7 +404,7 @@
           break;
 
         case 'final_answer':
-          addMsg('answer', d.content);
+          addMsg('answer', formatAnswer(d.content));
           setRunning(false);
           refreshTools();
           break;
@@ -460,6 +482,19 @@
       const div = document.createElement('div');
       div.textContent = s || '';
       return div.innerHTML;
+    }
+
+    function formatAnswer(content) {
+      const label = '<div class="answer-label">Answer</div>';
+      // Try to parse as JSON for pretty-printing
+      try {
+        const parsed = JSON.parse(content);
+        if (typeof parsed === 'object' && parsed !== null) {
+          return label + '<pre>' + escHtml(JSON.stringify(parsed, null, 2)) + '</pre>';
+        }
+      } catch (_) {}
+      // Plain text — just escape and display
+      return label + '<div>' + escHtml(content) + '</div>';
     }
 
     // Load tools on page load

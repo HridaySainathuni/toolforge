@@ -1,0 +1,5 @@
+task_id,domain,task,expected,actual,success,tool_created,tool_reused,tool_name,attempts,time_seconds,condition
+x3_048,mixed,What is the sum of all numbers from 1 to 1000 that are divisible by 3?,166833,166833,True,False,False,,1,5.46,full
+x3_047,mixed,What is the number of trailing zeros in 100 factorial?,24,24,True,False,False,,1,2.16,full
+m1_048,math,"What is the harmonic mean of 1, 2, and 4? Round to 4 decimal places.",1.7143,1.7143,True,False,False,,1,3.22,full
+x3_044,mixed,How many vowels are in the word 'pneumonoultramicroscopicsilicovolcanoconiosis'?,20,20,True,False,False,,1,4.91,full

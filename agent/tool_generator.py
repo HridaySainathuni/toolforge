@@ -104,7 +104,12 @@ class ToolGenerator:
                 lines = [l for l in lines if not l.strip().startswith("```")]
                 text = "\n".join(lines).strip()
 
-            return json.loads(text)
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                decoder = json.JSONDecoder()
+                obj, _ = decoder.raw_decode(text)
+                return obj
 
         except json.JSONDecodeError as e:
             log.error("Failed to parse tool generator response as JSON: %s", e)

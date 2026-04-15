@@ -1,0 +1,11 @@
+task_id,domain,task,expected,actual,success,tool_created,tool_reused,tool_name,attempts,time_seconds,condition
+t2_001,text,Count the number of vowels in 'extraordinary'.,6,5,False,False,False,,1,5.33,full
+t2_002,text,Reverse the string 'hello world'.,dlrow olleh,dlrow olleh,True,False,False,,1,1.76,full
+t2_003,text,How many words are in 'The quick brown fox jumps over the lazy dog'?,9,9,True,False,False,,1,2.47,full
+t2_004,text,Convert 'hello world' to title case.,Hello World,Hello World,True,False,False,,1,1.91,full
+t2_005,text,Is 'racecar' a palindrome? Answer true or false.,true,true,True,False,False,,1,1.61,full
+t2_006,text,Remove all spaces from 'h e l l o  w o r l d'.,helloworld,,False,False,False,,1,3.68,full
+t2_007,text,Count the occurrences of the letter 'l' in 'hello world'.,3,3,True,False,False,,1,2.31,full
+t2_008,text,What is the longest word in 'The quick brown fox jumps'?,quick,jumps,False,False,False,,1,1.96,full
+t2_009,text,How many unique characters are in 'mississippi'?,4,4,True,False,False,,1,1.88,full
+t2_010,text,Replace all spaces with underscores in 'hello world foo bar'.,hello_world_foo_bar,hello_world_foo_bar,True,False,False,,1,1.23,full

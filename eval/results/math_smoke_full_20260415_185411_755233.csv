@@ -1,0 +1,6 @@
+task_id,domain,task,expected,actual,success,tool_created,tool_reused,tool_name,attempts,time_seconds,condition
+m1_001,math,What is 17 multiplied by 23?,391,391,True,False,False,,1,3.96,full
+m1_002,math,What is the square root of 144?,12,12,True,False,False,,1,1.61,full
+m1_003,math,What is 15% of 240?,36,36,True,False,False,,1,1.33,full
+m1_004,math,What is the sum of the first 10 natural numbers?,55,55,True,False,False,,1,1.45,full
+m1_005,math,Is 97 a prime number?,true,true,True,False,False,,1,2.48,full

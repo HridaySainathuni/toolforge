@@ -12,7 +12,7 @@ class Config:
     VALIDATION_TIMEOUT: int = 15
     TOOL_GEN_RETRIES: int = 3
     LIBRARY_PATH: str = os.path.join(os.path.dirname(__file__), "library", "tool_library.db")
-    PORT: int = 5000
+    PORT: int = int(os.getenv("PORT", "5001"))
     FAILURES_PATH: str = os.path.join(os.path.dirname(__file__), "library", "failures.db")
     # Retrieval
     RETRIEVAL_THRESHOLD: float = float(os.getenv("RETRIEVAL_THRESHOLD", "0.75"))

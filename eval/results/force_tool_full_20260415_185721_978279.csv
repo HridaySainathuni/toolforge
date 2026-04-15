@@ -1,0 +1,3 @@
+task_id,domain,task,expected,actual,success,tool_created,tool_reused,tool_name,attempts,time_seconds,condition
+force_001,mixed,What is the MD5 hash of the string 'toolforge'?,8e3bc4b5dc47a5d46fb38a4b3af2f6e1,f40b9763b6bdb74acba8d9c86da8ffe4,False,True,True,md5_hash_computation,3,12.8,full
+force_002,math,"What are the first 15 prime numbers, as a comma-separated list?","2,3,5,7,11,13,17,19,23,29,31,37,41,43,47","2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47",False,False,False,,1,2.44,full

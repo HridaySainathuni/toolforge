@@ -1,0 +1,12 @@
+task_id,domain,task,expected,actual,success,tool_created,tool_reused,tool_name,attempts,time_seconds,condition
+x3_010,mixed,Generate the first 8 Fibonacci numbers as a comma-separated string.,"1, 1, 2, 3, 5, 8, 13, 21","1, 1, 2, 3, 5, 8, 13, 21",True,False,False,,1,5.57,full
+x3_011,mixed,"How many letters in the English alphabet are valid Roman numeral characters (I,V,X,L,C,D,M)?",7,7,True,False,False,,1,2.0,full
+x3_012,mixed,Is the number of characters in 'hello' (5) a prime number? Answer true or false.,true,true,True,False,False,,1,1.9,full
+x3_013,mixed,Encode the number 255 as a zero-padded 8-character binary string.,11111111,11111111,True,False,False,,1,1.8,full
+x3_014,mixed,How many characters does it take to spell out the number 17 as 'seventeen'?,9,9,True,False,False,,1,1.64,full
+x3_015,mixed,What is the checksum (digit sum) of the year 2025?,9,9,True,False,False,,1,1.64,full
+x3_016,mixed,"Sort the words in 'banana apple cherry date' alphabetically, joined by space.",apple banana cherry date,,False,False,False,,1,3.89,full
+x3_017,mixed,What is the sum of ASCII values of all uppercase letters in 'Hello World'?,159,159,True,False,False,,1,2.62,full
+x3_018,mixed,What is the largest palindrome number less than 1000?,999,999,True,False,False,,1,2.3,full
+x3_019,mixed,Convert the string 'abc' to its numeric alphabet positions (a=1) and return the sum.,6,6,True,False,False,,1,2.2,full
+x3_020,mixed,What is the product of the lengths of the words in 'cat is fun'?,27,18,False,False,False,,1,2.09,full

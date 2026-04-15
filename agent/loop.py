@@ -147,7 +147,13 @@ class AgentLoop:
                 lines = [l for l in lines if not l.strip().startswith("```")]
                 text = "\n".join(lines).strip()
 
-            return json.loads(text)
+            # Extract first complete JSON object (handles trailing text after closing brace)
+            try:
+                return json.loads(text)
+            except json.JSONDecodeError:
+                decoder = json.JSONDecoder()
+                obj, _ = decoder.raw_decode(text)
+                return obj
 
         except json.JSONDecodeError as e:
             log.error("Failed to parse agent response as JSON: %s\nRaw: %s", e, text[:500] if 'text' in dir() else "N/A")
