@@ -1,0 +1,4 @@
+condition,domain,n_tasks,task_success_rate,tool_creation_rate,tool_reuse_rate,avg_time_seconds,avg_attempts
+full,math,10,1.0,0.2,0.5,1.5,2.0
+full,mixed,10,0.0,0.2,0.5,1.5,2.0
+full,text,10,0.0,0.2,0.5,1.5,2.0
