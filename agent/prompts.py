@@ -32,6 +32,7 @@ RULES:
 6. You can call tools multiple times in sequence. Each call is one iteration.
 7. When you have enough information to answer, use "final_answer" immediately — don't keep calling tools unnecessarily.
 8. Tool args must match the tool's declared argument names exactly.
+9. The "answer" field must be the direct answer only — a number, a word, or a short phrase. No markdown formatting, no explanation, no units unless the task requires them. For yes/no questions, answer "true" or "false".
 """
 
 TOOL_GENERATOR_SYSTEM_PROMPT = """You are a Python function generator. You write single, self-contained Python functions.
