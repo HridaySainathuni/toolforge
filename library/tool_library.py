@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 from contextlib import contextmanager
 from typing import Any
@@ -17,7 +18,6 @@ class ToolLibrary:
 
     @contextmanager
     def _conn(self):
-        import os
         os.makedirs(os.path.dirname(self.db_path) or ".", exist_ok=True)
         conn = sqlite3.connect(self.db_path)
         conn.row_factory = sqlite3.Row
@@ -29,6 +29,10 @@ class ToolLibrary:
             raise
         finally:
             conn.close()
+
+    def _normalize(self, vec: np.ndarray) -> np.ndarray:
+        norm = np.linalg.norm(vec)
+        return vec / norm if norm > 0 else vec
 
     def _init_db(self) -> None:
         with self._conn() as conn:
@@ -62,30 +66,46 @@ class ToolLibrary:
         embedding: "np.ndarray",
         task_context: str = "",
     ) -> int:
-        """Insert or replace a tool. Returns the row id."""
+        """Insert or update a tool, preserving reuse_count/pass_rate on conflict. Returns the row id."""
+        vec = self._normalize(embedding.astype(np.float32))
         with self._conn() as conn:
-            cursor = conn.execute(
-                """INSERT OR REPLACE INTO tools
+            conn.execute(
+                """INSERT OR IGNORE INTO tools
                    (name, description, source_code, embedding, args, returns, tags, origin_task)
                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     tool_spec["name"],
                     tool_spec.get("description", ""),
                     tool_spec["source_code"],
-                    embedding.astype(np.float32).tobytes(),
+                    vec.tobytes(),
                     json.dumps(tool_spec.get("args", {})),
                     tool_spec.get("returns", ""),
                     json.dumps(tool_spec.get("tags", [])),
                     task_context,
                 ),
             )
-            return cursor.lastrowid
+            conn.execute(
+                """UPDATE tools SET description=?, source_code=?, embedding=?, args=?, returns=?, tags=?
+                   WHERE name=?""",
+                (
+                    tool_spec.get("description", ""),
+                    tool_spec["source_code"],
+                    vec.tobytes(),
+                    json.dumps(tool_spec.get("args", {})),
+                    tool_spec.get("returns", ""),
+                    json.dumps(tool_spec.get("tags", [])),
+                    tool_spec["name"],
+                ),
+            )
+            row = conn.execute("SELECT id FROM tools WHERE name=?", (tool_spec["name"],)).fetchone()
+            return row["id"]
 
     def replace_tool(self, name: str, new_source: str, new_embedding: "np.ndarray") -> None:
+        vec = self._normalize(new_embedding.astype(np.float32))
         with self._conn() as conn:
             conn.execute(
                 "UPDATE tools SET source_code=?, embedding=? WHERE name=?",
-                (new_source, new_embedding.astype(np.float32).tobytes(), name),
+                (new_source, vec.tobytes(), name),
             )
 
     def delete_tool(self, name: str) -> None:
@@ -109,6 +129,18 @@ class ToolLibrary:
                 conn.execute(
                     "UPDATE tools SET pass_rate=? WHERE name=?", (new_rate, name)
                 )
+
+    def record_outcome(self, name: str, success: bool) -> None:
+        """Atomically increment reuse_count and update pass_rate."""
+        delta = 1.0 if success else 0.0
+        with self._conn() as conn:
+            conn.execute(
+                """UPDATE tools SET
+                   reuse_count = reuse_count + 1,
+                   pass_rate = (pass_rate * reuse_count + ?) / (reuse_count + 1)
+                   WHERE name=?""",
+                (delta, name),
+            )
 
     # --- Read operations ---
 
