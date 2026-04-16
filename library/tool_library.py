@@ -322,6 +322,113 @@ class ToolLibrary:
                 "tags": ["regex", "search", "text", "pattern", "find"],
             },
         ]
+        spreadsheet_seeds = [
+            {
+                "name": "read_spreadsheet",
+                "description": "Read an Excel (.xlsx/.xls) or CSV file and return its contents as a markdown table",
+                "source_code": (
+                    "def read_spreadsheet(path: str, sheet: str = None, max_rows: int = 50) -> str:\n"
+                    '    """Read Excel or CSV file, return as markdown table (up to max_rows rows)."""\n'
+                    "    import pandas as pd\n"
+                    "    try:\n"
+                    "        if path.endswith('.csv'):\n"
+                    "            df = pd.read_csv(path, nrows=max_rows)\n"
+                    "        else:\n"
+                    "            df = pd.read_excel(path, sheet_name=sheet or 0, nrows=max_rows, engine='openpyxl')\n"
+                    "        return df.to_markdown(index=False)\n"
+                    "    except Exception as e:\n"
+                    "        return f'Error: {e}'\n"
+                ),
+                "args": {
+                    "path": "str — path to .xlsx, .xls, or .csv file",
+                    "sheet": "str — sheet name (Excel only, optional)",
+                    "max_rows": "int — max rows to return (default 50)",
+                },
+                "returns": "str — markdown table or error",
+                "tags": ["excel", "csv", "spreadsheet", "pandas", "read", "data"],
+            },
+            {
+                "name": "query_spreadsheet",
+                "description": "Load a spreadsheet and run a pandas query/expression to filter or aggregate data",
+                "source_code": (
+                    "def query_spreadsheet(path: str, query: str, sheet: str = None) -> str:\n"
+                    '    """Load spreadsheet and evaluate a pandas query string (e.g. \'Age > 30\')."""\n'
+                    "    import pandas as pd\n"
+                    "    try:\n"
+                    "        if path.endswith('.csv'):\n"
+                    "            df = pd.read_csv(path)\n"
+                    "        else:\n"
+                    "            df = pd.read_excel(path, sheet_name=sheet or 0, engine='openpyxl')\n"
+                    "        result = df.query(query)\n"
+                    "        return result.to_markdown(index=False)\n"
+                    "    except Exception as e:\n"
+                    "        return f'Error: {e}'\n"
+                ),
+                "args": {
+                    "path": "str — path to file",
+                    "query": "str — pandas query string e.g. 'column > 100'",
+                    "sheet": "str — sheet name (Excel only, optional)",
+                },
+                "returns": "str — filtered rows as markdown table or error",
+                "tags": ["excel", "csv", "spreadsheet", "pandas", "query", "filter"],
+            },
+            {
+                "name": "summarize_spreadsheet",
+                "description": "Return shape, column names, dtypes, and summary stats for a spreadsheet",
+                "source_code": (
+                    "def summarize_spreadsheet(path: str, sheet: str = None) -> str:\n"
+                    '    """Return schema and summary stats for an Excel or CSV file."""\n'
+                    "    import pandas as pd, json\n"
+                    "    try:\n"
+                    "        if path.endswith('.csv'):\n"
+                    "            df = pd.read_csv(path)\n"
+                    "        else:\n"
+                    "            df = pd.read_excel(path, sheet_name=sheet or 0, engine='openpyxl')\n"
+                    "        info = {\n"
+                    "            'rows': len(df), 'columns': len(df.columns),\n"
+                    "            'column_names': list(df.columns),\n"
+                    "            'dtypes': {c: str(t) for c, t in df.dtypes.items()},\n"
+                    "            'null_counts': df.isnull().sum().to_dict(),\n"
+                    "            'numeric_summary': json.loads(df.describe().to_json()),\n"
+                    "        }\n"
+                    "        return json.dumps(info, default=str)\n"
+                    "    except Exception as e:\n"
+                    "        return f'Error: {e}'\n"
+                ),
+                "args": {
+                    "path": "str — path to .xlsx, .xls, or .csv file",
+                    "sheet": "str — sheet name (Excel only, optional)",
+                },
+                "returns": "str — JSON with shape, columns, dtypes, null counts, numeric stats",
+                "tags": ["excel", "csv", "spreadsheet", "pandas", "summary", "stats", "schema"],
+            },
+            {
+                "name": "write_spreadsheet",
+                "description": "Write a list of dicts or a CSV string to an Excel or CSV file",
+                "source_code": (
+                    "def write_spreadsheet(path: str, data: list, sheet: str = 'Sheet1') -> str:\n"
+                    '    """Write list of dicts to Excel or CSV. data = [{"col": val, ...}, ...]."""\n'
+                    "    import pandas as pd\n"
+                    "    try:\n"
+                    "        df = pd.DataFrame(data)\n"
+                    "        if path.endswith('.csv'):\n"
+                    "            df.to_csv(path, index=False)\n"
+                    "        else:\n"
+                    "            df.to_excel(path, sheet_name=sheet, index=False, engine='openpyxl')\n"
+                    "        return f'Written {len(df)} rows x {len(df.columns)} cols to {path}'\n"
+                    "    except Exception as e:\n"
+                    "        return f'Error: {e}'\n"
+                ),
+                "args": {
+                    "path": "str — output path (.xlsx or .csv)",
+                    "data": "list — list of dicts, each dict is a row",
+                    "sheet": "str — sheet name for Excel (default Sheet1)",
+                },
+                "returns": "str — success message or error",
+                "tags": ["excel", "csv", "spreadsheet", "pandas", "write", "export"],
+            },
+        ]
+
         file_seeds = [
             {
                 "name": "list_directory",
@@ -394,5 +501,5 @@ class ToolLibrary:
                 "tags": ["file", "read", "lines", "range"],
             },
         ]
-        for spec in seeds + file_seeds:
+        for spec in seeds + spreadsheet_seeds + file_seeds:
             self.add_tool(spec, embedding=zero_emb, task_context="seed")

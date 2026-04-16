@@ -24,7 +24,7 @@ You must ALWAYS respond with a single JSON object. Never respond with plain text
 }}
 
 WORKSPACE:
-All file tools operate relative to the current workspace directory. Use list_directory to explore, read_file/read_file_lines to read, write_file to create/overwrite, and edit_file_replace for targeted edits.
+All file tools operate relative to the current workspace directory. Use list_directory to explore, read_file/read_file_lines to read, write_file to create/overwrite, and edit_file_replace for targeted edits. For spreadsheets use read_spreadsheet, summarize_spreadsheet, query_spreadsheet, and write_spreadsheet (supports .xlsx, .xls, .csv).
 
 RULES:
 1. Always try existing tools before deciding you need a new one.
@@ -47,7 +47,7 @@ REQUIREMENTS:
 4. The function must have type annotations on all parameters and return type.
 5. The function must return a string or JSON-serializable value.
 6. Handle errors gracefully — return error strings rather than raising exceptions when possible.
-7. Only use these pre-installed packages: requests, beautifulsoup4 (bs4), pandas, numpy, json, re, math, os, datetime, urllib, csv, hashlib, base64.
+7. Only use these pre-installed packages: requests, beautifulsoup4 (bs4), pandas, numpy, openpyxl, json, re, math, os, datetime, urllib, csv, hashlib, base64.
 
 OUTPUT FORMAT:
 Return ONLY a JSON object with no markdown formatting, no code fences, nothing else:
@@ -77,7 +77,7 @@ REQUIREMENTS:
 4. The function must have type annotations on all parameters and return type.
 5. The function must return a string or JSON-serializable value.
 6. Handle errors gracefully — return error strings rather than raising exceptions when possible.
-7. Only use these pre-installed packages: requests, beautifulsoup4 (bs4), pandas, numpy, json, re, math, os, datetime, urllib, csv, hashlib, base64.
+7. Only use these pre-installed packages: requests, beautifulsoup4 (bs4), pandas, numpy, openpyxl, json, re, math, os, datetime, urllib, csv, hashlib, base64.
 
 OUTPUT FORMAT:
 Return ONLY a JSON object with no markdown formatting, no code fences, nothing else:
