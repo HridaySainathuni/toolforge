@@ -112,11 +112,65 @@
     /* ── Input Row ── */
     #input-row {
       display: flex;
-      padding: 10px 20px 14px;
-      gap: 10px;
+      flex-direction: column;
+      padding: 8px 20px 14px;
+      gap: 6px;
       background: #0d0d14;
       flex-shrink: 0;
     }
+
+    #input-controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #drop-zone {
+      border: 1.5px dashed #2a2a4e;
+      border-radius: 8px;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 0.78em;
+      color: #444;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: none;
+    }
+    #drop-zone.visible { display: block; }
+    #drop-zone.dragover { border-color: #6366f1; color: #8080cc; background: #12121f; }
+
+    #upload-btn {
+      background: #12121f;
+      border: 1px solid #2a2a4e;
+      color: #666;
+      padding: 11px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+      transition: all 0.15s;
+      flex-shrink: 0;
+    }
+    #upload-btn:hover { border-color: #6366f1; color: #a0a0ff; }
+
+    #file-input { display: none; }
+
+    .uploaded-file {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #1a1a2e;
+      border: 1px solid #2a2a4e;
+      color: #8080cc;
+      padding: 3px 10px;
+      border-radius: 6px;
+      font-size: 0.78em;
+    }
+    .uploaded-file .remove-file {
+      cursor: pointer;
+      color: #555;
+      margin-left: 2px;
+    }
+    .uploaded-file .remove-file:hover { color: #ef4444; }
 
     #task-input {
       flex: 1;
@@ -526,8 +580,16 @@
   </div>
 
   <div id="input-row">
-    <input id="task-input" placeholder="Describe a task..." autofocus />
-    <button id="run-btn" onclick="handleRunStop()">Run</button>
+    <div id="drop-zone" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event)">
+      Drop file here to upload to workspace
+    </div>
+    <div id="file-tags"></div>
+    <div id="input-controls">
+      <button id="upload-btn" title="Upload file" onclick="document.getElementById('file-input').click()">📎</button>
+      <input id="file-input" type="file" onchange="handleFileSelect(event)" />
+      <input id="task-input" placeholder="Describe a task or drop a file..." autofocus />
+      <button id="run-btn" onclick="handleRunStop()">Run</button>
+    </div>
   </div>
 </div>
 
@@ -851,6 +913,92 @@
     const div = document.createElement('div');
     div.textContent = s || '';
     return div.innerHTML;
+  }
+
+  // ── File Upload ──
+  let uploadedFiles = [];
+
+  // Drag-and-drop on the whole chat panel
+  const chatPanel = document.getElementById('chat-panel');
+  chatPanel.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.add('visible', 'dragover');
+  });
+
+  function onDragOver(e) { e.preventDefault(); }
+  function onDragLeave(e) {
+    document.getElementById('drop-zone').classList.remove('dragover');
+  }
+  function onDrop(e) {
+    e.preventDefault();
+    document.getElementById('drop-zone').classList.remove('visible', 'dragover');
+    const files = Array.from(e.dataTransfer.files);
+    files.forEach(uploadFile);
+  }
+  function handleFileSelect(e) {
+    Array.from(e.target.files).forEach(uploadFile);
+    e.target.value = '';
+  }
+
+  function uploadFile(file) {
+    const tag = addFileTag(file.name, true);
+    const fd = new FormData();
+    fd.append('file', file);
+    fetch('/api/upload', { method: 'POST', body: fd })
+      .then(r => r.json())
+      .then(d => {
+        if (d.error) {
+          tag.remove();
+          addMsg('error-msg', `Upload failed: ${escHtml(d.error)}`);
+          return;
+        }
+        tag.querySelector('.remove-file').dataset.uploading = '';
+        uploadedFiles.push(d.filename);
+        addMsg('thought', `Uploaded: ${escHtml(d.filename)} (${(d.size/1024).toFixed(1)} KB) → workspace`);
+        // Auto-suggest task if input is empty
+        const inp = document.getElementById('task-input');
+        if (!inp.value.trim()) {
+          inp.value = suggestTask(d.filename);
+        }
+      })
+      .catch(err => {
+        tag.remove();
+        addMsg('error-msg', `Upload error: ${err}`);
+      });
+  }
+
+  function addFileTag(name, uploading = false) {
+    const wrap = document.getElementById('file-tags');
+    const tag = document.createElement('span');
+    tag.className = 'uploaded-file';
+    tag.innerHTML = `${escHtml(name)} <span class="remove-file" data-name="${escHtml(name)}" ${uploading ? 'data-uploading="1"' : ''} onclick="removeFileTag(this)">✕</span>`;
+    wrap.appendChild(tag);
+    return tag;
+  }
+
+  function removeFileTag(el) {
+    const name = el.dataset.name;
+    uploadedFiles = uploadedFiles.filter(f => f !== name);
+    el.closest('.uploaded-file').remove();
+  }
+
+  function suggestTask(filename) {
+    const ext = filename.split('.').pop().toLowerCase();
+    const suggestions = {
+      xlsx: `Summarize the spreadsheet ${filename} — show me the columns, row count, and key stats`,
+      xls:  `Summarize the spreadsheet ${filename} — show me the columns, row count, and key stats`,
+      csv:  `Read ${filename} and show me the first 20 rows as a table`,
+      pdf:  `Read ${filename} and summarize its contents`,
+      txt:  `Read ${filename} and summarize its contents`,
+      json: `Read ${filename} and describe its structure`,
+      py:   `Read ${filename} and explain what it does`,
+      js:   `Read ${filename} and explain what it does`,
+      md:   `Read ${filename} and summarize it`,
+      docx: `Read ${filename} and summarize its contents`,
+      png:  `Describe what to do with the file ${filename}`,
+      jpg:  `Describe what to do with the file ${filename}`,
+    };
+    return suggestions[ext] || `Work with the file ${filename}`;
   }
 
   // Workspace

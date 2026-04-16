@@ -6,6 +6,7 @@ import threading
 import uuid
 
 from flask import Flask, Response, jsonify, render_template, request, send_from_directory
+from werkzeug.utils import secure_filename
 import os
 
 import anthropic as _anthropic
@@ -134,6 +135,19 @@ def delete_tool(name: str):
         return jsonify({"error": "Library not initialized"}), 500
     tool_library.delete_tool(name)
     return jsonify({"ok": True})
+
+
+@app.route("/api/upload", methods=["POST"])
+def upload_file():
+    if "file" not in request.files:
+        return jsonify({"error": "No file provided"}), 400
+    f = request.files["file"]
+    if not f.filename:
+        return jsonify({"error": "Empty filename"}), 400
+    filename = secure_filename(f.filename)
+    dest = os.path.join(Config.WORKSPACE_DIR, filename)
+    f.save(dest)
+    return jsonify({"filename": filename, "path": dest, "size": os.path.getsize(dest)})
 
 
 @app.route("/api/workspace", methods=["GET"])
