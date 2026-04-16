@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import logging
 import queue
+import threading
 from typing import Any
 
 import anthropic
@@ -23,9 +24,11 @@ class AgentLoop:
         self,
         tool_library: ToolLibrary,
         event_queue: queue.Queue | None = None,
+        stop_event: threading.Event | None = None,
     ) -> None:
         self.library = tool_library
         self.events = event_queue
+        self._stop = stop_event
         self.client = anthropic.Anthropic(api_key=Config.ANTHROPIC_API_KEY)
         self.generator = ToolGenerator()
         self.failure_store = FailureStore(db_path=Config.FAILURES_PATH)
@@ -46,6 +49,10 @@ class AgentLoop:
         self._emit("task_start", {"task": task})
 
         while self.iteration < Config.MAX_ITERATIONS:
+            if self._stop and self._stop.is_set():
+                self._emit("error", {"content": "Task stopped by user"})
+                return {"success": False, "error": "Stopped", "tool_created": self._tool_created, "tool_reused": self._tool_reused, "tool_used": self._tool_name_used, "attempts": self.iteration}
+
             self.iteration += 1
 
             response = self._call_claude(task)
@@ -69,7 +76,7 @@ class AgentLoop:
                 if acquired:
                     self.messages.append({
                         "role": "user",
-                        "content": f"New tool acquired: {acquired}. You can now use it by calling it with action=call_tool.",
+                        "content": f"Tool acquired and stored. To use it, set action=call_tool and tool_name=\"{acquired}\" (use this exact name, no other).",
                     })
                 else:
                     self.messages.append({

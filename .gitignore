@@ -6,3 +6,8 @@ dist/
 build/
 .venv/
 venv/
+*.db
+.coverage
+htmlcov/
+.pytest_cache/
+.playwright-mcp/

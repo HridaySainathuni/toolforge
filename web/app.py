@@ -5,7 +5,8 @@ import queue
 import threading
 import uuid
 
-from flask import Flask, Response, jsonify, render_template, request
+from flask import Flask, Response, jsonify, render_template, request, send_from_directory
+import os
 
 import anthropic as _anthropic
 
@@ -14,11 +15,12 @@ from agent.loop import AgentLoop
 from config import Config
 from library.tool_library import ToolLibrary
 
-app = Flask(__name__, template_folder="templates")
+app = Flask(__name__, template_folder="templates", static_folder="static")
 
 # Will be set by main.py
 tool_library: ToolLibrary | None = None
 task_queues: dict[str, queue.Queue] = {}
+task_stop_events: dict[str, threading.Event] = {}
 
 
 def init_app(library: ToolLibrary) -> Flask:
@@ -32,6 +34,14 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/favicon.ico")
+def favicon():
+    static_dir = os.path.join(os.path.dirname(__file__), "static")
+    if os.path.exists(os.path.join(static_dir, "favicon.ico")):
+        return send_from_directory(static_dir, "favicon.ico")
+    return "", 204
+
+
 @app.route("/api/task", methods=["POST"])
 def start_task():
     data = request.get_json()
@@ -41,11 +51,13 @@ def start_task():
 
     task_id = str(uuid.uuid4())
     q: queue.Queue = queue.Queue()
+    stop_event = threading.Event()
     task_queues[task_id] = q
+    task_stop_events[task_id] = stop_event
 
     def run_agent():
         try:
-            loop = AgentLoop(tool_library=tool_library, event_queue=q)
+            loop = AgentLoop(tool_library=tool_library, event_queue=q, stop_event=stop_event)
             loop.run(task_text)
         except Exception as e:
             q.put({"type": "error", "content": str(e)})
@@ -56,6 +68,17 @@ def start_task():
     thread.start()
 
     return jsonify({"task_id": task_id})
+
+
+@app.route("/api/task/<task_id>/stop", methods=["POST"])
+def stop_task(task_id: str):
+    stop_event = task_stop_events.get(task_id)
+    if stop_event:
+        stop_event.set()
+    q = task_queues.get(task_id)
+    if q:
+        q.put({"type": "done"})
+    return jsonify({"ok": True})
 
 
 @app.route("/api/task/<task_id>/stream")
@@ -76,6 +99,7 @@ def stream_task(task_id: str):
 
         # Cleanup
         task_queues.pop(task_id, None)
+        task_stop_events.pop(task_id, None)
 
     return Response(
         generate(),
@@ -92,6 +116,24 @@ def list_tools():
     if tool_library is None:
         return jsonify([])
     return jsonify(tool_library.get_all_tools_public())
+
+
+@app.route("/api/tools/<name>/source")
+def get_tool_source(name: str):
+    if tool_library is None:
+        return jsonify({"error": "Library not initialized"}), 500
+    source = tool_library.get_source_code(name)
+    if source is None:
+        return jsonify({"error": "Tool not found"}), 404
+    return jsonify({"name": name, "source": source})
+
+
+@app.route("/api/tools/<name>", methods=["DELETE"])
+def delete_tool(name: str):
+    if tool_library is None:
+        return jsonify({"error": "Library not initialized"}), 500
+    tool_library.delete_tool(name)
+    return jsonify({"ok": True})
 
 
 @app.route("/api/librarian/run", methods=["POST"])
