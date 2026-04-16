@@ -136,6 +136,21 @@ def delete_tool(name: str):
     return jsonify({"ok": True})
 
 
+@app.route("/api/workspace", methods=["GET"])
+def get_workspace():
+    return jsonify({"workspace": Config.WORKSPACE_DIR})
+
+
+@app.route("/api/workspace", methods=["POST"])
+def set_workspace():
+    data = request.get_json()
+    path = data.get("path", "").strip()
+    if not path or not os.path.isdir(path):
+        return jsonify({"error": f"Not a valid directory: {path}"}), 400
+    Config.WORKSPACE_DIR = os.path.abspath(path)
+    return jsonify({"workspace": Config.WORKSPACE_DIR})
+
+
 @app.route("/api/librarian/run", methods=["POST"])
 def run_librarian():
     if tool_library is None:

@@ -322,5 +322,77 @@ class ToolLibrary:
                 "tags": ["regex", "search", "text", "pattern", "find"],
             },
         ]
-        for spec in seeds:
+        file_seeds = [
+            {
+                "name": "list_directory",
+                "description": "List files and directories at a given path",
+                "source_code": (
+                    "def list_directory(path: str = '.') -> str:\n"
+                    '    """List files and subdirectories at path, returns JSON."""\n'
+                    "    import os, json\n"
+                    "    try:\n"
+                    "        entries = []\n"
+                    "        for name in sorted(os.listdir(path)):\n"
+                    "            full = os.path.join(path, name)\n"
+                    "            entries.append({'name': name, 'type': 'dir' if os.path.isdir(full) else 'file',\n"
+                    "                            'size': os.path.getsize(full) if os.path.isfile(full) else None})\n"
+                    "        return json.dumps(entries)\n"
+                    "    except Exception as e:\n"
+                    "        return f'Error: {e}'\n"
+                ),
+                "args": {"path": "str — directory path, defaults to '.'"},
+                "returns": "str — JSON array of {name, type, size}",
+                "tags": ["file", "directory", "list", "ls"],
+            },
+            {
+                "name": "edit_file_replace",
+                "description": "Replace all occurrences of a string in a file and save it",
+                "source_code": (
+                    "def edit_file_replace(path: str, old_text: str, new_text: str) -> str:\n"
+                    '    """Replace all occurrences of old_text with new_text in file at path."""\n'
+                    "    try:\n"
+                    "        with open(path, 'r', encoding='utf-8') as f:\n"
+                    "            content = f.read()\n"
+                    "        count = content.count(old_text)\n"
+                    "        if count == 0:\n"
+                    "            return f'No occurrences of the target text found in {path}'\n"
+                    "        content = content.replace(old_text, new_text)\n"
+                    "        with open(path, 'w', encoding='utf-8') as f:\n"
+                    "            f.write(content)\n"
+                    "        return f'Replaced {count} occurrence(s) in {path}'\n"
+                    "    except Exception as e:\n"
+                    "        return f'Error: {e}'\n"
+                ),
+                "args": {
+                    "path": "str — file path",
+                    "old_text": "str — text to find",
+                    "new_text": "str — replacement text",
+                },
+                "returns": "str — success message with count, or error",
+                "tags": ["file", "edit", "replace", "text", "modify"],
+            },
+            {
+                "name": "read_file_lines",
+                "description": "Read specific line range from a file",
+                "source_code": (
+                    "def read_file_lines(path: str, start: int = 1, end: int = 50) -> str:\n"
+                    '    """Read lines start..end (1-indexed, inclusive) from file."""\n'
+                    "    try:\n"
+                    "        with open(path, 'r', encoding='utf-8') as f:\n"
+                    "            lines = f.readlines()\n"
+                    "        selected = lines[start-1:end]\n"
+                    "        return ''.join(f'{start+i}: {l}' for i, l in enumerate(selected))\n"
+                    "    except Exception as e:\n"
+                    "        return f'Error: {e}'\n"
+                ),
+                "args": {
+                    "path": "str — file path",
+                    "start": "int — first line (1-indexed)",
+                    "end": "int — last line (inclusive)",
+                },
+                "returns": "str — numbered lines",
+                "tags": ["file", "read", "lines", "range"],
+            },
+        ]
+        for spec in seeds + file_seeds:
             self.add_tool(spec, embedding=zero_emb, task_context="seed")

@@ -21,3 +21,5 @@ class Config:
     ABLATION_NO_LIBRARY: bool = os.getenv("ABLATION_NO_LIBRARY", "false").lower() == "true"
     ABLATION_NO_ABSTRACTION: bool = os.getenv("ABLATION_NO_ABSTRACTION", "false").lower() == "true"
     ABLATION_NO_LIBRARIAN: bool = os.getenv("ABLATION_NO_LIBRARIAN", "false").lower() == "true"
+    # Workspace directory for file operations
+    WORKSPACE_DIR: str = os.getenv("WORKSPACE_DIR", os.getcwd())

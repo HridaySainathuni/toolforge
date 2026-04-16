@@ -23,6 +23,9 @@ You must ALWAYS respond with a single JSON object. Never respond with plain text
   "reason": "explanation of why this task is impossible (required if action=impossible)"
 }}
 
+WORKSPACE:
+All file tools operate relative to the current workspace directory. Use list_directory to explore, read_file/read_file_lines to read, write_file to create/overwrite, and edit_file_replace for targeted edits.
+
 RULES:
 1. Always try existing tools before deciding you need a new one.
 2. If a tool returns an error, reason about the error and try a different approach before acquiring a new tool.

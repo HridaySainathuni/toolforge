@@ -30,11 +30,13 @@ def run_in_sandbox(
         with os.fdopen(fd, "w", encoding="utf-8") as f:
             f.write(runner)
 
+        from config import Config
         proc = subprocess.run(
             [sys.executable, tmp_path],
             capture_output=True,
             text=True,
             timeout=timeout,
+            cwd=Config.WORKSPACE_DIR,
         )
 
         stdout = proc.stdout.strip()

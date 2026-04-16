@@ -502,6 +502,8 @@
     <span class="subtitle">Autonomous tool-acquiring agent</span>
     <div id="header-right">
       <span id="elapsed"></span>
+      <span id="workspace-display" title="Click to change workspace" onclick="promptWorkspace()" style="font-size:0.72em;color:#444;cursor:pointer;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="workspace"></span>
+      <button class="hdr-btn" onclick="promptWorkspace()">📁</button>
       <button class="hdr-btn" onclick="clearChat()">Clear</button>
     </div>
   </div>
@@ -517,6 +519,8 @@
     <span class="chip" onclick="setTask(this)">Fetch top Hacker News headline</span>
     <span class="chip" onclick="setTask(this)">Longest palindrome in &quot;racecarabcbaxyz&quot;</span>
     <span class="chip" onclick="setTask(this)">2 raised to the power of 100</span>
+    <span class="chip" onclick="setTask(this)">List files in the current workspace</span>
+    <span class="chip" onclick="setTask(this)">Read the file README.md and summarize it</span>
   </div>
 
   <div id="input-row">
@@ -847,8 +851,33 @@
     return div.innerHTML;
   }
 
+  // Workspace
+  function loadWorkspace() {
+    fetch('/api/workspace').then(r => r.json()).then(d => {
+      document.getElementById('workspace-display').textContent = d.workspace;
+      document.getElementById('workspace-display').title = d.workspace;
+    });
+  }
+
+  function promptWorkspace() {
+    const current = document.getElementById('workspace-display').textContent;
+    const path = prompt('Set workspace directory:', current);
+    if (!path || path === current) return;
+    fetch('/api/workspace', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ path }),
+    }).then(r => r.json()).then(d => {
+      if (d.error) { alert(d.error); return; }
+      document.getElementById('workspace-display').textContent = d.workspace;
+      document.getElementById('workspace-display').title = d.workspace;
+      addMsg('thought', `Workspace set to: ${escHtml(d.workspace)}`);
+    });
+  }
+
   // Load tools on page load
   refreshTools();
+  loadWorkspace();
 </script>
 </body>
 </html>
